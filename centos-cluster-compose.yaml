@@ -1,0 +1,33 @@
+version: '3.7'
+
+services:
+  service1:
+    image: centos7:prod_23.09.27.01
+    deploy:
+      placement:
+        constraints:
+          - node.labels.type == master  # docker node update --label-add type=master master
+    networks:
+      - my_network
+
+  service2:
+    image: centos7:prod_23.09.27.01
+    deploy:
+      placement:
+        constraints:
+          - node.labels.type == master
+    networks:
+      - my_network
+
+  service3:
+    image: centos7:prod_23.09.27.01
+    deploy:
+      placement:
+        constraints:
+          - node.labels.type == slave
+    networks:
+      - my_network
+
+networks:
+  my_network:
+    driver: overlay

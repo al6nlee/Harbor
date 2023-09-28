@@ -1,0 +1,31 @@
+# 使用一个基础镜像，这里选择了CentOS 7
+FROM centos:7
+
+# 切换到阿里云镜像源
+RUN mv /etc/yum.repos.d/CentOS-Base.repo /etc/yum.repos.d/CentOS-Base.repo.backup
+RUN curl -o /etc/yum.repos.d/CentOS-Base.repo https://mirrors.aliyun.com/repo/Centos-7.repo
+
+# 更新包列表并安装常用工具
+RUN yum -y update && yum -y install \
+    vim \
+    systemd \
+    iputils \
+    && yum clean all
+
+# 安装Docker并将源地址更改为阿里云
+RUN yum install -y yum-utils device-mapper-persistent-data lvm2
+RUN yum-config-manager --add-repo https://mirrors.aliyun.com/docker-ce/linux/centos/docker-ce.repo
+RUN yum install -y docker-ce docker-ce-cli containerd.io
+
+# 启用并启动Docker服务
+RUN systemctl enable docker
+RUN systemctl start docker
+
+RUN echo '{"registry-mirrors": ["https://eofxca83.mirror.aliyuncs.com"]}' > /etc/docker/daemon.json
+
+# 设置容器终端为非交互式
+ENV DEBIAN_FRONTEND=noninteractive
+
+WORKDIR /opt
+
+CMD ["/usr/lib/systemd/systemd"]
